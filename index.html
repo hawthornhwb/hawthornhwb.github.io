@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="WeiboHuang 的个人博客，记录技术探索、学习心得与生活思考。">
+  <meta name="theme-color" content="#6d5dfc">
+  <title>WeiboHuang · 个人博客</title>
+  <script>
+    (function () {
+      var saved = localStorage.getItem('blog-theme');
+      var preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-bs-theme', saved || preferred);
+    }());
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+
+  <nav class="navbar navbar-expand-lg fixed-top glass-nav" aria-label="主导航">
+    <div class="container py-2">
+      <a class="navbar-brand d-flex align-items-center" href="#home" aria-label="WeiboHuang 首页">
+        <span class="brand-mark" aria-hidden="true">WH</span>
+        <span>WeiboHuang</span>
+      </a>
+      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="展开导航">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+          <li class="nav-item"><a class="nav-link px-lg-3" href="#home">首页</a></li>
+          <li class="nav-item"><a class="nav-link px-lg-3" href="#notes">记录</a></li>
+          <li class="nav-item"><a class="nav-link px-lg-3" href="#about">关于</a></li>
+          <li class="nav-item ms-lg-2">
+            <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换明暗主题" title="切换明暗主题">
+              <i class="bi bi-moon-stars-fill" id="themeIcon" aria-hidden="true"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <header class="hero d-flex align-items-center" id="home">
+      <div class="container">
+        <div class="row align-items-center g-5">
+          <div class="col-lg-7">
+            <div class="reveal">
+              <span class="eyebrow"><i class="bi bi-stars" aria-hidden="true"></i> HELLO, WORLD</span>
+              <h1 class="hero-title">把复杂的问题，<span class="gradient-text">写成清晰的答案。</span></h1>
+              <p class="hero-copy mt-4 mb-0">你好，我是 WeiboHuang。这里记录技术探索、学习心得与生活思考，也收藏那些值得反复回看的瞬间。</p>
+              <div class="d-flex flex-wrap gap-3 mt-4 pt-2">
+                <a class="btn btn-brand btn-lg rounded-pill px-4" href="#notes">开始阅读 <i class="bi bi-arrow-down-right ms-1" aria-hidden="true"></i></a>
+                <a class="btn btn-soft btn-lg rounded-pill px-4" href="https://github.com/hawthornhwb" target="_blank" rel="noopener noreferrer"><i class="bi bi-github me-2" aria-hidden="true"></i>GitHub</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="terminal-card reveal reveal-delay-1" aria-label="博客主题代码示意">
+              <div class="terminal-head">
+                <span class="terminal-dot bg-danger"></span>
+                <span class="terminal-dot bg-warning"></span>
+                <span class="terminal-dot bg-success"></span>
+                <span class="ms-2 text-secondary small">notes.md</span>
+              </div>
+              <div class="terminal-body">
+                <div><span class="code-purple">const</span> curiosity = <span class="code-cyan">true</span>;</div>
+                <div><span class="code-purple">const</span> ideas = [];</div>
+                <br>
+                <div><span class="code-muted">// 保持好奇，持续记录</span></div>
+                <div><span class="code-purple">while</span> (curiosity) {</div>
+                <div>&nbsp;&nbsp;ideas.push(<span class="code-green">"新的发现"</span>);</div>
+                <div>&nbsp;&nbsp;learn();</div>
+                <div>&nbsp;&nbsp;write();</div>
+                <div>}</div>
+                <br>
+                <div><span class="code-cyan">→</span> welcome_to_my_blog()</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="section-space" id="notes">
+      <div class="container">
+        <div class="row align-items-end g-4 mb-5">
+          <div class="col-lg-8">
+            <div class="section-kicker">Latest notes</div>
+            <h2 class="section-title">近期记录与正在酝酿的主题</h2>
+          </div>
+          <div class="col-lg-4">
+            <p class="muted-copy mb-0">博客刚刚开始。先把想法放在这里，再让它们慢慢长成完整的文章。</p>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-6 col-xl-4">
+            <article class="note-card reveal">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="note-icon"><i class="bi bi-rocket-takeoff" aria-hidden="true"></i></span>
+                <span class="note-meta">建站手记</span>
+              </div>
+              <h3>从零搭建个人博客</h3>
+              <p class="mb-0">用 GitHub Pages 完成域名托管、内容发布与界面升级，让写作拥有一个长期稳定的入口。</p>
+            </article>
+          </div>
+          <div class="col-md-6 col-xl-4">
+            <article class="note-card reveal reveal-delay-1">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="note-icon"><i class="bi bi-lightbulb" aria-hidden="true"></i></span>
+                <span class="note-meta">持续更新</span>
+              </div>
+              <h3>技术探索与实践</h3>
+              <p class="mb-0">记录解决问题的过程、工具带来的启发，以及那些能够复用的方法与经验。</p>
+            </article>
+          </div>
+          <div class="col-md-6 col-xl-4">
+            <article class="note-card reveal reveal-delay-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="note-icon"><i class="bi bi-journal-richtext" aria-hidden="true"></i></span>
+                <span class="note-meta">随笔计划</span>
+              </div>
+              <h3>学习与生活随笔</h3>
+              <p class="mb-0">收藏读书、思考和日常中的小发现，在快速变化的世界里保留自己的节奏。</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-space pt-0" id="about">
+      <div class="container">
+        <div class="about-panel">
+          <div class="row align-items-center g-5">
+            <div class="col-lg-4 text-center text-lg-start">
+              <div class="avatar-mark" aria-hidden="true">WH</div>
+              <div class="section-kicker mt-4">About me</div>
+              <h2 class="h1 fw-bold mt-2 mb-0">你好，很高兴认识你。</h2>
+            </div>
+            <div class="col-lg-8">
+              <p class="fs-5 muted-copy">我相信记录会让思考变得更清楚，也让时间留下可以回看的线索。这个博客会持续收录新的探索、学习心得和生活片段。</p>
+              <div class="d-flex flex-wrap gap-2 mt-4" aria-label="博客主题">
+                <span class="topic-pill"><i class="bi bi-compass me-2" aria-hidden="true"></i>技术探索</span>
+                <span class="topic-pill"><i class="bi bi-book me-2" aria-hidden="true"></i>学习心得</span>
+                <span class="topic-pill"><i class="bi bi-cup-hot me-2" aria-hidden="true"></i>生活思考</span>
+                <span class="topic-pill"><i class="bi bi-github me-2" aria-hidden="true"></i>开源记录</span>
+              </div>
+              <a class="btn btn-brand rounded-pill px-4 mt-4" href="https://github.com/hawthornhwb" target="_blank" rel="noopener noreferrer">在 GitHub 找到我 <i class="bi bi-arrow-up-right ms-1" aria-hidden="true"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer py-4">
+    <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+      <span>© <span id="currentYear"></span> WeiboHuang. 保持好奇，持续记录。</span>
+      <div class="d-flex gap-3">
+        <a href="#home">回到顶部</a>
+        <a href="https://github.com/hawthornhwb/hawthornhwb.github.io" target="_blank" rel="noopener noreferrer">查看源码</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var toggle = document.getElementById('themeToggle');
+      var icon = document.getElementById('themeIcon');
+
+      function syncIcon() {
+        var isDark = root.getAttribute('data-bs-theme') === 'dark';
+        icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
+        toggle.setAttribute('aria-label', isDark ? '切换到浅色主题' : '切换到深色主题');
+      }
+
+      toggle.addEventListener('click', function () {
+        var next = root.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-bs-theme', next);
+        localStorage.setItem('blog-theme', next);
+        syncIcon();
+      });
+
+      document.getElementById('currentYear').textContent = new Date().getFullYear();
+      syncIcon();
+    }());
+  </script>
+</body>
+</html>
