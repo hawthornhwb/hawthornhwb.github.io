@@ -427,3 +427,185 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Minimal black theme */
+[data-bs-theme="dark"] {
+  color-scheme: dark;
+  --bs-body-bg: #050505;
+  --bs-body-color: #f5f5f7;
+  --brand: #9b8cff;
+  --brand-2: #7867ff;
+  --brand-soft: rgba(155, 140, 255, 0.1);
+  --surface: #0c0c0f;
+  --surface-strong: #101012;
+  --border-soft: rgba(255, 255, 255, 0.1);
+  --text-main: #f5f5f7;
+  --text-muted: #9999a3;
+  --shadow-soft: 0 24px 70px rgba(0, 0, 0, 0.46);
+  --hero-glow: rgba(139, 92, 246, 0.1);
+}
+
+[data-bs-theme="dark"] body {
+  background-color: #050505;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    radial-gradient(circle at 82% 12%, rgba(139, 92, 246, 0.09), transparent 26rem);
+  background-size: 44px 44px, 44px 44px, auto;
+  background-attachment: fixed;
+}
+
+[data-bs-theme="dark"] .glass-nav {
+  background: rgba(5, 5, 5, 0.84);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-bs-theme="dark"] .brand-mark {
+  color: #050505;
+  background: #f5f5f7;
+  box-shadow: none;
+}
+
+[data-bs-theme="dark"] .navbar-brand,
+[data-bs-theme="dark"] .nav-link,
+[data-bs-theme="dark"] .theme-toggle {
+  color: #f5f5f7;
+}
+
+[data-bs-theme="dark"] .nav-link {
+  color: #a1a1aa;
+}
+
+[data-bs-theme="dark"] .nav-link:hover,
+[data-bs-theme="dark"] .nav-link:focus {
+  color: #ffffff;
+}
+
+[data-bs-theme="dark"] .theme-toggle {
+  background: #0c0c0f;
+  border-color: #27272a;
+}
+
+[data-bs-theme="dark"] .hero::before {
+  top: 5rem;
+  right: -13rem;
+  width: 32rem;
+  height: 32rem;
+  background: rgba(124, 92, 246, 0.08);
+  filter: blur(24px);
+}
+
+[data-bs-theme="dark"] .hero::after {
+  display: none;
+}
+
+[data-bs-theme="dark"] .eyebrow {
+  color: #c4b5fd;
+  background: #0d0d10;
+  border-color: #29272f;
+}
+
+[data-bs-theme="dark"] .gradient-text {
+  background: linear-gradient(110deg, #ffffff 0%, #dedaff 46%, #8b7cff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+[data-bs-theme="dark"] .btn-brand {
+  color: #080808;
+  background: #f5f5f7;
+  box-shadow: none;
+}
+
+[data-bs-theme="dark"] .btn-brand:hover,
+[data-bs-theme="dark"] .btn-brand:focus {
+  color: #080808;
+  background: #dedaff;
+  box-shadow: 0 12px 34px rgba(139, 124, 255, 0.14);
+}
+
+[data-bs-theme="dark"] .btn-soft {
+  color: #e4e4e7;
+  background: #0c0c0f;
+  border-color: #27272a;
+}
+
+[data-bs-theme="dark"] .btn-soft:hover,
+[data-bs-theme="dark"] .btn-soft:focus {
+  color: #ffffff;
+  background: #121216;
+  border-color: #46464f;
+}
+
+[data-bs-theme="dark"] .terminal-card {
+  background: #09090b;
+  border-color: #29292e;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.62);
+  transform: rotate(0.7deg);
+}
+
+[data-bs-theme="dark"] .terminal-head {
+  background: #0d0d10;
+  border-bottom-color: #242429;
+}
+
+[data-bs-theme="dark"] .terminal-body {
+  color: #d4d4d8;
+}
+
+[data-bs-theme="dark"] .code-purple { color: #b9aaff; }
+[data-bs-theme="dark"] .code-cyan { color: #a5f3fc; }
+[data-bs-theme="dark"] .code-green { color: #bbf7d0; }
+[data-bs-theme="dark"] .code-muted { color: #71717a; }
+
+[data-bs-theme="dark"] .note-card {
+  background: #0c0c0f;
+  border-color: #232328;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+[data-bs-theme="dark"] .note-card:hover {
+  border-color: rgba(155, 140, 255, 0.5);
+  box-shadow: 0 22px 56px rgba(0, 0, 0, 0.36);
+  transform: translateY(-4px);
+}
+
+[data-bs-theme="dark"] .note-icon {
+  color: #c4b5fd;
+  background: #17151f;
+  border: 1px solid #2b2738;
+}
+
+[data-bs-theme="dark"] .about-panel {
+  background:
+    linear-gradient(120deg, rgba(124, 92, 246, 0.08), transparent 55%),
+    #0a0a0c;
+  border-color: #242429;
+  box-shadow: none;
+}
+
+[data-bs-theme="dark"] .avatar-mark {
+  color: #050505;
+  background: #f5f5f7;
+  box-shadow: none;
+  transform: none;
+}
+
+[data-bs-theme="dark"] .topic-pill {
+  color: #b5b5bd;
+  background: #101012;
+  border-color: #29292e;
+}
+
+[data-bs-theme="dark"] .site-footer {
+  border-top-color: #1f1f23;
+}
+
+@media (max-width: 991.98px) {
+  [data-bs-theme="dark"] .glass-nav .navbar-collapse {
+    background: #0a0a0c;
+    border-color: #242429;
+  }
+}
