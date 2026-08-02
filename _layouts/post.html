@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ page.description | default: site.description | escape }}">
+  <meta name="theme-color" content="#050505">
+  <title>{{ page.title | escape }} · {{ site.title | escape }}</title>
+  <script>
+    (function () {
+      var saved = localStorage.getItem('blog-theme-v2');
+      document.documentElement.setAttribute('data-bs-theme', saved || 'dark');
+    }());
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css?v=dark2' | relative_url }}">
+  <style>
+    .post-page { min-height: 100vh; padding: 8.5rem 0 5rem; }
+    .post-container { width: min(760px, calc(100% - 2rem)); margin: 0 auto; }
+    .post-back { display: inline-flex; align-items: center; gap: .5rem; color: var(--text-muted); text-decoration: none; font-weight: 650; }
+    .post-back:hover { color: var(--text-main); }
+    .post-header { padding: 3.5rem 0 2.5rem; border-bottom: 1px solid var(--border-soft); }
+    .post-label { color: #b8adff; font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .post-title { max-width: 18ch; margin: 1rem 0; font-size: clamp(2.5rem, 8vw, 4.8rem); font-weight: 850; line-height: 1.04; letter-spacing: -.06em; }
+    .post-description { max-width: 42rem; color: var(--text-muted); font-size: 1.15rem; line-height: 1.75; }
+    .post-meta { display: flex; flex-wrap: wrap; gap: .7rem 1.25rem; margin-top: 1.5rem; color: var(--text-muted); font-size: .92rem; }
+    .post-content { padding-top: 2.75rem; color: var(--text-main); font-size: 1.06rem; line-height: 1.9; }
+    .post-content h2, .post-content h3 { margin: 2.7rem 0 1rem; font-weight: 780; letter-spacing: -.035em; }
+    .post-content h2 { font-size: 1.85rem; }
+    .post-content h3 { font-size: 1.35rem; }
+    .post-content p, .post-content ul, .post-content ol, .post-content blockquote { margin-bottom: 1.35rem; }
+    .post-content a { color: #b8adff; }
+    .post-content img { max-width: 100%; height: auto; border: 1px solid var(--border-soft); border-radius: 1rem; }
+    .post-content blockquote { padding: .2rem 0 .2rem 1.25rem; color: var(--text-muted); border-left: 3px solid #8b7cff; }
+    .post-content pre { overflow-x: auto; padding: 1.25rem; background: #0c0c0f; border: 1px solid #27272a; border-radius: 1rem; }
+    .post-content code { color: #c4b5fd; }
+    .post-content :not(pre) > code { padding: .18em .42em; background: rgba(155, 140, 255, .1); border-radius: .35rem; }
+    .post-footer { display: flex; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border-soft); }
+    @media (max-width: 575.98px) { .post-page { padding-top: 6.5rem; } .post-header { padding-top: 2rem; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar fixed-top glass-nav" aria-label="文章导航">
+    <div class="container py-2">
+      <a class="navbar-brand d-flex align-items-center" href="{{ '/' | relative_url }}">
+        <span class="brand-mark" aria-hidden="true">WH</span><span>WeiboHuang</span>
+      </a>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换明暗主题">
+        <i class="bi bi-sun-fill" id="themeIcon" aria-hidden="true"></i>
+      </button>
+    </div>
+  </nav>
+
+  <main class="post-page">
+    <article class="post-container">
+      <a class="post-back" href="{{ '/#notes' | relative_url }}"><i class="bi bi-arrow-left"></i> 返回文章列表</a>
+      <header class="post-header">
+        <div class="post-label">{{ page.categories | first | default: 'Article' }}</div>
+        <h1 class="post-title">{{ page.title | escape }}</h1>
+        {% if page.description %}<p class="post-description mb-0">{{ page.description | escape }}</p>{% endif %}
+        <div class="post-meta">
+          <span><i class="bi bi-calendar3 me-2"></i>{{ page.date | date: "%Y年%m月%d日" }}</span>
+          {% if page.tags %}<span><i class="bi bi-tags me-2"></i>{{ page.tags | join: " · " }}</span>{% endif %}
+        </div>
+      </header>
+      <div class="post-content">{{ content }}</div>
+      <footer class="post-footer">
+        <a class="post-back" href="{{ '/#notes' | relative_url }}"><i class="bi bi-grid"></i> 查看更多文章</a>
+        <a class="post-back" href="#top">回到顶部 <i class="bi bi-arrow-up"></i></a>
+      </footer>
+    </article>
+  </main>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var toggle = document.getElementById('themeToggle');
+      var icon = document.getElementById('themeIcon');
+      function syncIcon() {
+        var isDark = root.getAttribute('data-bs-theme') === 'dark';
+        icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
+        toggle.setAttribute('aria-label', isDark ? '切换到浅色主题' : '切换到深色主题');
+      }
+      toggle.addEventListener('click', function () {
+        var next = root.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-bs-theme', next);
+        localStorage.setItem('blog-theme-v2', next);
+        syncIcon();
+      });
+      syncIcon();
+    }());
+  </script>
+</body>
+</html>
