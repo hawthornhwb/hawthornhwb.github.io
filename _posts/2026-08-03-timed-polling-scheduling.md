@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "关于定时轮询调度的实践思考"
-date: 2026-08-03
+date: 2026-08-03 00:20:00 +0800
 description: "几种定时轮询调度方案的比较和实践场景"
 categories: [技术]
 tags: [GitHub, 学习笔记]
