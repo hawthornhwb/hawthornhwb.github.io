@@ -43,7 +43,6 @@ button { font: inherit; }
   border-bottom: 1px solid var(--line);
 }
 .site-name { font-size: 1.02rem; font-weight: 750; letter-spacing: -.04em; text-decoration: none; white-space: nowrap; }
-.name-dot { color: var(--accent); }
 .site-nav { display: flex; align-items: center; gap: clamp(.9rem, 3vw, 2rem); }
 .site-nav a, .theme-toggle { color: var(--muted); font-size: .88rem; text-decoration: none; }
 .site-nav a:hover, .theme-toggle:hover, .site-footer a:hover { color: var(--accent); }
