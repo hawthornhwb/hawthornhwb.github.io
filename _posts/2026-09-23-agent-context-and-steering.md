@@ -1,212 +1,160 @@
 ---
 layout: post
-title: "Agent 学习总结：Claude Code 的上下文管理与运行中指令处理"
+title: "Claude Code 官方文档学习笔记：上下文管理与运行中消息处理"
 date: 2026-09-23 00:00:00 +0800
-description: "结合 Claude Code 官方文档，梳理上下文压缩、Memory、子 Agent 隔离，以及执行中新增要求的排队、中断和状态一致性。"
+description: "整理 Claude Code 官方文档中的按需加载、会话压缩、Memory、子 Agent 上下文，以及消息排队、中断和 Hook 的行为。"
 categories: [技术]
-tags: [Agent, Claude Code, 上下文工程, 学习笔记]
+tags: [Claude Code, 官方文档, 上下文管理, 学习笔记]
 permalink: /2026/09/23/agent-context-and-steering/
 ---
 
-今天围绕两个问题整理了一次学习笔记：Agent 如何在有限上下文中持续工作？任务执行过程中，用户补充要求后，系统如何接收并调整后续动作？
+这篇笔记整理 Claude Code 官方文档中的两个主题：**上下文窗口如何管理，以及执行过程中如何接收新的用户消息。**
 
-这两个问题都涉及模型之外的运行时设计：哪些信息进入下一次模型调用、哪些状态需要持久保存，以及如何协调已经发生的操作与新的目标。
+文档阅读日期为 2026 年 9 月 23 日。下文记录公开说明的产品行为，不推断内部源码实现；具体限制、快捷键和默认行为以对应版本文档为准。
 
-本文区分三类内容：**官方文档明确描述的产品行为，以及我对通用 Agent 系统设计的思考。** 阅读官方文档不等于阅读核心运行时源码；文中的流程示意也不代表 Claude Code 的内部函数或数据结构。文档核对日期为 2026 年 9 月 23 日，具体快捷键与行为可能随版本变化。
+## 一、执行循环与上下文
 
-## 一、先理解 Agent 的执行循环
+Claude Code 官方将模型外面的运行层称为 *agentic harness*。它提供工具，并管理模型能够看到的上下文。
 
-Claude Code 官方将运行时称为 *agentic harness*：它围绕模型提供工具，并管理模型可见的上下文。任务通常经历收集信息、采取行动、验证结果的循环，工具结果会影响下一步决策。[官方说明：How Claude Code works](https://code.claude.com/docs/en/how-claude-code-works)
+任务通常在三个阶段之间循环：收集上下文、采取行动、验证结果。工具返回的信息会影响下一步决策。上下文包含会话、文件内容、命令输出、项目指令、Memory、已加载的 Skills 和系统指令。
 
-从工程上，我把一次模型调用的输入理解为：
+Claude Code 还会将消息、工具调用和结果保存为本地会话记录，支持恢复或分叉会话。新会话不会自动继承此前会话的全部历史，可以通过项目指令与 Auto memory 保留跨会话信息。
 
-```text
-当前模型输入
-  = 系统与工具信息
-  + 项目规则
-  + 当前需要的记忆与知识
-  + 会话历史或摘要
-  + 工具结果
-  + 最新用户要求
-```
+来源：[How Claude Code works](https://code.claude.com/docs/en/how-claude-code-works)。
 
-这是一种概念划分。仓库文件存在磁盘上，不代表模型已经读过；历史记录被保存下来，也不代表每次调用都带上全部记录。
+## 二、按需加载 Skills 与工具
 
-以故障归因为例，Agent 需要知道“当前调查哪个服务、哪个时间窗口、已有何种证据”，但未必需要每轮都重新阅读数万行原始日志。
+Skills 的描述用于帮助 Claude 判断何时使用某项能力；完整正文在调用 Skill 时才加载。较长的参考内容可以放在支持文件中，需要时再读取。
 
-## 二、上下文管理从“按需加载”开始
+对于只希望手动调用的 Skill，可以设置 `disable-model-invocation: true`，避免模型自行调用，并使其描述不在启动时占用上下文。
 
-上下文管理不应等到窗口满了才介入。
+来源：[Skills](https://code.claude.com/docs/en/skills)。
 
-Claude Code 的 Skills 支持先通过描述发现能力，使用时再加载正文；较长的参考资料可以拆成支持文件，按需读取。[官方说明：Skills](https://code.claude.com/docs/en/skills)
+MCP 工具定义默认可以通过工具搜索按需加载。在使用具体工具之前，通常先保留工具名称和服务端指令，减少完整工具定义的预先加载。
 
-我对这种设计的理解是把“发现能力”和“执行能力”分开：
+来源：[Manage context with skills and subagents](https://code.claude.com/docs/en/how-claude-code-works#manage-context-with-skills-and-subagents)。
 
-```text
-先知道：
-  数据库排障 Skill：检查连接、查询和锁等待
+## 三、会话压缩与内容重新加载
 
-确定需要后，再读取：
-  详细排查步骤
-  查询示例
-  验证方法
-```
+接近上下文限制时，Claude Code 会先清理较早的工具输出，必要时再总结会话。较早的详细指令仍可能丢失，因此官方建议把持久规则放在 `CLAUDE.md` 中。
 
-这样既减少输入量，也减少无关知识对当前判断的干扰。对自己的运维 Agent，可以先提供排障知识目录，再根据实际问题读取对应步骤。
+可以运行 `/compact` 手动压缩，并指定保留重点；也可以在 `CLAUDE.md` 中添加压缩指导。若单个过大的文件或工具输出导致反复压缩后立即填满窗口，Claude Code 会在多次尝试后报错，避免持续循环。
 
-## 三、压缩会话后，如何继续工作？
+来源：[When context fills up](https://code.claude.com/docs/en/how-claude-code-works#when-context-fills-up)。
 
-官方说明，接近上下文限制时，Claude Code 会先清理较早的工具输出，必要时再总结会话；也支持通过 `/compact` 指定压缩重点。早期细节仍可能丢失，因此持久规则不应只存在聊天记录里。[官方说明：When context fills up](https://code.claude.com/docs/en/how-claude-code-works#when-context-fills-up)
+压缩后的处理依内容来源而不同：
 
-我的理解是：摘要最重要的用途，是保留继续任务所需的状态。
-
-下面是一个运维调查摘要的设计示例，并非 Claude Code 固定使用的模板：
-
-```text
-目标：定位 checkout 服务发布后错误率升高的原因
-范围：production，指定故障时间窗口
-约束：只读调查
-已确认：异常集中在新版本实例
-尚未确认：配置变更是否导致依赖连接失败
-证据：日志与指标的来源、查询条件和结果引用
-已完成：检查 Pod 状态与发布记录
-下一步：核对新旧版本配置及对应错误日志
-```
-
-特别需要保留“尚未确认”的部分。压缩如果把假设变成事实，后续调查会沿着错误方向推进。
-
-### 压缩之外，还有信息重新加载
-
-根据官方文档，压缩后的处理依内容来源而不同：
-
-| 内容 | 后续处理 |
+| 内容 | 压缩后的行为 |
 | --- | --- |
 | 系统提示与输出风格 | 继续生效 |
-| 根目录项目指令、无路径限制的规则 | 从磁盘重新注入 |
-| Auto memory、计划 | 重新注入 |
-| 路径规则、子目录指令 | 读取相关文件时重新加载 |
-| 已调用 Skill 的正文 | 在预算限制内重新注入 |
-| 部分近期文件 | 重新读取，过大时保留引用 |
+| 根目录 `CLAUDE.md` 与无路径限制的规则 | 从磁盘重新注入 |
+| Auto memory 与计划文件 | 重新注入 |
+| Git 状态 | 重新读取 |
+| 路径规则与子目录 `CLAUDE.md` | 读取相关文件时重新加载 |
+| 已调用 Skill 正文 | 在预算限制内重新注入 |
+| 部分近期文件 | 重新读取，过大时保留路径引用 |
+| 后台命令与后台子 Agent | 继续运行，并保留运行提醒 |
+| 先前 Hook 添加的上下文 | 随会话一起总结 |
 
-后台任务还可以继续运行，压缩本身不会把所有执行状态清空。[官方说明：What survives compaction](https://code.claude.com/docs/en/context-window#what-survives-compaction)
+来源：[What survives compaction](https://code.claude.com/docs/en/context-window#what-survives-compaction)。
 
-这让我更明确地认识到：**上下文摘要、文件状态和任务状态应当分开管理。** 摘要告诉模型如何继续；需要核对细节时，还应能回到原始文件和证据。
+## 四、项目指令与 Auto memory
 
-## 四、Memory、缓存和子 Agent 各自解决什么问题？
+官方将 `CLAUDE.md` 与 Auto memory 分开说明：
 
-### Memory 保存可复用信息
+| 类型 | 维护者 | 主要内容 |
+| --- | --- | --- |
+| `CLAUDE.md` | 用户 | 项目约定、工作流程和指令 |
+| Auto memory | Claude | 偏好、纠正、经验与项目相关信息 |
 
-官方区分了用户维护的 `CLAUDE.md` 和 Claude 自动维护的 Memory。前者主要表达项目规则，后者记录经验、偏好和纠正；Memory 使用索引与主题文件组织内容，启动时只加载有限部分。[官方说明：Memory](https://code.claude.com/docs/en/memory)
+Auto memory 使用 `MEMORY.md` 作为索引，并把详细内容保存到主题文件。按当前文档，启动时读取索引的前 200 行或前 25KB，以先达到的限制为准；详细主题文件在需要时读取。
 
-我用下面的表格区分几种状态：
+Auto memory 保存在本机，同一 Git 仓库的 worktree 和子目录共享对应记忆目录，不会自动跨机器或云环境同步。
 
-| 内容 | 回答的问题 |
+`CLAUDE.md` 属于提供给模型的上下文，而不是强制执行的配置。官方建议保持指令具体、简洁、结构清楚。
+
+来源：[How Claude remembers your project](https://code.claude.com/docs/en/memory)。
+
+## 五、子 Agent 的上下文隔离
+
+官方区分普通子 Agent 与 fork：
+
+| 类型 | 初始上下文 |
 | --- | --- |
-| 项目规则 | 在这里应当怎样工作？ |
-| 长期 Memory | 有什么经验可以复用？ |
-| 会话摘要 | 当前任务推进到哪里？ |
-| 原始证据 | 判断依据在哪里，能否再次核验？ |
-| 执行状态 | 哪些动作完成、失败或仍在运行？ |
+| 非 fork 子 Agent | 从独立上下文开始，接收委派任务及自身配置 |
+| Fork | 继承创建时的父会话上下文 |
 
-### 子 Agent 提供上下文隔离
+非 fork 子 Agent 不会自动看到主会话之前读过的文件、调用过的 Skills 和全部历史。Fork 则从父会话的副本开始。
 
-官方文档区分非 fork 子 Agent 与 fork：前者从独立上下文和委派消息开始，后者继承创建时的父会话。因此不能笼统地说所有子 Agent 都共享主会话，或都完全不继承历史。[官方说明：Subagents](https://code.claude.com/docs/en/sub-agents#what-loads-at-startup)
+子 Agent 后续的工具调用与大量读取保留在自己的上下文中，完成后向主会话返回结果摘要。因此，“是否继承创建时的上下文”和“后续是否使用独立上下文”是两个需要分别理解的行为。
 
-对运维场景，我会考虑把范围明确的大量日志分析放在局部上下文中，向主任务返回发现、证据引用和未解决问题。代价是需要做好任务交接：局部目标、时间范围和关键约束不能省略。
+来源：[Subagents — What loads at startup](https://code.claude.com/docs/en/sub-agents#what-loads-at-startup)。
 
-### Prompt Cache 不会扩大上下文窗口
+## 六、Prompt caching 与压缩的区别
 
-Claude Code 的缓存利用稳定的请求前缀，官方文档说明它会尽量将稳定内容放在前面、变化的对话放在后面。[官方说明：Prompt caching](https://code.claude.com/docs/en/prompt-caching)
+Prompt caching 通过复用相同请求前缀，降低重复输入的处理成本与延迟。Claude Code 会尽量将稳定内容放在请求前部，将持续变化的会话放在后部。
 
-它与摘要的用途不同：
+官方文档描述的内容顺序包括：
 
-- 缓存减少重复输入的计算成本。
-- 压缩减少当前输入规模。
-- Memory 保存可复用信息。
-- 按需读取控制哪些细节进入当前任务。
+1. 系统提示和工具定义。
+2. 项目上下文，例如 `CLAUDE.md`、Auto memory 和无路径限制的规则。
+3. 用户消息、模型回答与工具结果。
 
-因此，“缓存命中率高”不能替代“上下文占用受到控制”。
+前缀发生变化时，其后的缓存匹配会受到影响。缓存与上下文压缩用途不同：缓存复用计算，压缩改变当前携带的会话内容。缓存命中不等于上下文窗口被扩大。
 
-## 五、执行中的新增消息，什么时候交给模型？
+来源：[How Claude Code uses prompt caching](https://code.claude.com/docs/en/prompt-caching)。
 
-一个用户任务可以包含多次模型请求和工具执行。“同一回合里继续处理新要求”，不必意味着修改正在进行中的那次模型计算。
+## 七、执行中的消息排队与中断
 
-当前官方交互文档说明：工作中按 Enter 提交的普通消息先排队；若当时正在执行工具，会在这些调用结束后交给模型，可在同一回合内处理。回合结束仍有排队消息时，会按顺序发送。命令和 Shell 命令通常等待回合结束，部分命令例外。[官方说明：消息排队](https://code.claude.com/docs/en/interactive-mode#queue-messages-while-claude-works)
+工作中输入普通消息并按 Enter，Claude Code 会先将其排队，而不是直接中断当前回合。
 
-概念上的流程是：
+消息的交付时机取决于内容与执行状态：
 
-```text
-已有工具调用开始
-    ↓
-用户补充：“只检查 checkout 服务”
-    ↓
-消息进入队列
-    ↓
-已有工具调用结束
-    ↓
-后续模型调用获得工具结果与新要求
-    ↓
-重新决定下一步
-```
-
-这提示我需要区分三个状态：
-
-1. 用户消息已被系统接收。
-2. 消息已进入模型可见的输入。
-3. 后续操作已按新要求调整。
-
-队列显示消息，不代表当前操作已经受到它的约束。
-
-## 六、立即中断与已经发生的副作用
-
-Claude Code 支持显式中断；较新版本也支持通过 `Ctrl+Enter` 立即发送排队消息，具体行为取决于版本和终端。[官方说明：Interactive mode](https://code.claude.com/docs/en/interactive-mode)
-
-但“停止继续执行”和“撤销之前的动作”需要分别处理。
-
-假设一个工具已经发出外部请求，随后用户取消任务。即使本地停止等待，也不能据此认定远端没有执行成功。同样，已经修改的文件不会因为新增一句“先别改”就自动恢复。
-
-Claude Code 的 Checkpoint 也有范围限制：官方明确指出，通过 Bash 命令产生的文件修改不受同样的回退追踪覆盖。[官方说明：Checkpointing limitations](https://code.claude.com/docs/en/checkpointing#limitations)
-
-对系统设计而言，我会把取消拆成三个问题：是否停止新动作、如何处置在途操作、是否需要恢复已经完成的变更。
-
-## 七、“注入新指令”具体意味着什么？
-
-在公开行为的范围内，可以把“注入”理解为：运行时把新要求纳入后续模型可见的上下文，使模型能结合当前状态重新决策。
-
-仅凭文档，不能断言普通排队消息一定修改 system prompt，或者被包装成某个固定内部标签。
-
-此外，Claude Code 提供 `UserPromptSubmit` Hook，可以在模型处理提示前校验、阻止提示或增加上下文。`additionalContext` 是官方提供的扩展能力，但它和普通消息排队并不是同一机制。[官方说明：UserPromptSubmit](https://code.claude.com/docs/en/hooks#userpromptsubmit)
-
-一个运维 Agent 可以据此借鉴：用户提供业务目标，可信运行时补充租户、允许访问的集群和资源范围。身份与权限应由服务端验证，不能依靠自然语言里的自我声明。
-
-## 八、对自己的 Agent，我会怎样处理需求变化？
-
-以下是设计思考，不是 Claude Code 已公开的内部实现。
-
-首先区分新消息的用途：
-
-| 类型 | 处理目标 |
+| 情况 | 官方描述的行为 |
 | --- | --- |
-| 补充事实 | 增加调查线索 |
-| 修改范围 | 更新后续查询条件 |
-| 更换目标 | 调整计划，保留仍有效的结果 |
-| 取消任务 | 停止派发，核对在途状态 |
-| 临时提问 | 回答后判断是否继续原任务 |
+| 工具调用期间提交普通消息 | 当前这些工具调用结束后交给模型，可以在同一回合处理 |
+| 回合结束时仍有排队消息 | 按提交顺序自动发送 |
+| 排队的命令或 Shell 命令 | 通常等回合结束，再依次执行；部分命令例外 |
+| 按 `Esc` | 中断当前执行；已排队消息随后处理 |
+| 按 `Ctrl+Enter` | 中断并立即发送排队消息，草稿也随之排队 |
 
-例如，原任务是“调查整个集群的重启问题”，新要求改为“只看 production 中的 checkout，最近 30 分钟”。
+`Ctrl+Enter` 的上述行为要求 v2.1.275 或更新版本，并取决于终端按键支持；文档也提供 `Ctrl+X Ctrl+S` 作为替代。Shell 模式的行为存在例外，应以交互文档为准。
 
-我会更新有效任务范围，给派发任务附加上下文版本；旧结果保留原始查询条件，返回后检查是否仍然适用。对于已经运行的子任务，需要明确更新或取消，不能假设它自动读到了主会话的新消息。
+来源：[Queue messages while Claude works](https://code.claude.com/docs/en/interactive-mode#queue-messages-while-claude-works)。
 
-关键约束也不能只依赖摘要记忆。如果用户限定“只读调查”，运行时应在工具执行前持续检查权限；模型即使遗漏了这句话，也不能因此获得写入权限。
+这些说明确认了消息的交付时机，但没有给出普通消息队列的完整源码结构，不能据此断言它一定修改某个 system prompt 或使用某种固定内部封装。
 
-## 九、今天的收获与后续实验
+## 八、UserPromptSubmit Hook 与 Checkpoint
 
-今天最值得带走的判断是：长任务能否可靠继续，取决于“当前需要的信息是否可见、原始证据是否可追溯、任务状态是否一致”。上下文压缩和用户消息排队，都需要放在完整的执行循环中理解。
+### UserPromptSubmit Hook
 
-阅读文档时，我也需要坚持区分产品行为与内部实现：可以依据文档说明消息的交付时机，但不能据此推断具体队列结构；可以讨论摘要、持久信息重载和子 Agent 隔离，但不能把这些理解包装成未曾有过的源码阅读经历。
+`UserPromptSubmit` 在用户提交提示、Claude 处理它之前运行，可以校验提示、阻止提示或补充上下文。
 
-后续我想做三个小实验：
+Hook 可以通过纯文本输出或 JSON 中的 `additionalContext` 添加内容；使用 `decision: "block"` 可以阻止提示进入处理。Hook 添加上下文与普通用户消息排队是不同的机制。
 
-1. 在长任务中保留一条关键约束，检查多次压缩后是否仍然有效。
-2. 在耗时工具执行期间修改任务范围，观察后续调用是否立即采用新范围。
-3. 在工具返回、任务状态保存等边界注入失败，检查恢复时是否重复执行或误用旧结果。
+来源：[Hooks — UserPromptSubmit](https://code.claude.com/docs/en/hooks#userpromptsubmit)。
+
+### Checkpoint 的范围
+
+Checkpoint 用于恢复受支持的文件编辑，并支持通过 rewind 回到此前状态。它不是 Git 的替代品，也不能覆盖所有修改。
+
+官方明确指出，通过 Bash 命令产生的文件修改不受同样的追踪，例如命令执行的删除、移动和复制。停止执行与恢复文件是不同操作，不能把中断理解为自动回滚。
+
+来源：[Checkpointing](https://code.claude.com/docs/en/checkpointing#limitations)。
+
+## 九、阅读时需要区分的概念
+
+| 概念 | 主要用途 |
+| --- | --- |
+| 当前上下文 | 本次模型调用能够使用的信息 |
+| 会话压缩 | 减少当前携带的历史内容 |
+| Auto memory | 保存可跨会话复用的信息 |
+| Prompt caching | 复用重复前缀的计算 |
+| 子 Agent 上下文 | 隔离子任务的后续处理过程 |
+| 消息排队 | 控制新增消息何时交给模型 |
+| 中断 | 停止当前执行 |
+| Checkpoint | 恢复支持范围内的文件状态 |
+
+查阅实际会话时，可以使用 `/context` 查看上下文占用，使用 `/memory` 检查记忆与指令文件，使用 `/compact` 指定压缩重点。官方也支持用 `/autocompact` 配置提前压缩，并在切换无关任务时使用 `/clear`。
+
+来源：[Explore the context window](https://code.claude.com/docs/en/context-window)。
