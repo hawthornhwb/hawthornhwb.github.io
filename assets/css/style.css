@@ -52,9 +52,9 @@ button { font: inherit; }
 .daily-views { display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem .6rem; margin: 1rem 0 0; color: var(--muted); font-size: .82rem; line-height: 1.6; font-variant-numeric: tabular-nums; }
 .daily-views [data-view-count] { color: var(--text); }
 .daily-views-note { font-size: .75rem; }
-.articles, .about { scroll-margin-top: 2rem; }
+.articles, .life { scroll-margin-top: 2rem; }
 .section-heading { display: flex; align-items: baseline; gap: .8rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--line); }
-.section-heading h2, .about h2 { margin: 0; font-size: 1.35rem; font-weight: 720; letter-spacing: -.035em; }
+.section-heading h2 { margin: 0; font-size: 1.35rem; font-weight: 720; letter-spacing: -.035em; }
 .section-count { color: var(--muted); font-size: .82rem; }
 .post-list-item {
   display: grid;
@@ -72,10 +72,7 @@ button { font: inherit; }
 .post-list-item:hover h3, .post-list-item:hover .post-list-arrow { color: var(--accent); }
 .post-list-item:hover .post-list-arrow { transform: translate(2px, -2px); }
 .empty-state { padding: 2rem 0; color: var(--muted); }
-.about { padding: 3rem 0; }
-.about-link { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; text-decoration: none; }
-.about-link span { color: var(--muted); }
-.about-link:hover, .about-link:hover span { color: var(--accent); }
+.life { margin: 4rem 0; }
 .profile-links { display: flex; flex-wrap: wrap; gap: 1rem 2rem; }
 .site-nav a[aria-current="page"] { color: var(--text); }
 .site-footer { display: flex; justify-content: space-between; gap: 1rem; padding: 1.5rem 0 2.5rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
@@ -111,7 +108,7 @@ button { font: inherit; }
   .post-list-item { grid-template-columns: minmax(0, 1fr) 1.25rem; gap: .3rem .75rem; padding: 1.3rem 0; }
   .post-list-item time { grid-column: 1 / -1; padding: 0; }
   .post-list-arrow { grid-column: 2; grid-row: 2; }
-  .about { padding: 2rem 0; }
+  .life { margin: 3rem 0; }
   .post-page { padding-top: 3rem; }
   .post-header { padding-top: 2.5rem; }
 }

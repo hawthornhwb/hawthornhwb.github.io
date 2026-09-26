@@ -12,7 +12,7 @@
   <script>
     try { document.documentElement.dataset.theme = localStorage.getItem('blog-theme-v2') || 'dark'; } catch (e) {}
   </script>
-  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v=4">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v=5">
 </head>
 <body id="top">
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -21,6 +21,7 @@
       <a class="site-name" href="{{ '/' | relative_url }}">黄伟搏</a>
       <nav class="site-nav" aria-label="主导航">
         <a href="#articles">文章</a>
+        <a href="#life">生活</a>
         <a href="{{ '/about/' | relative_url }}">关于</a>
         <a href="https://github.com/hawthornhwb" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
         <button class="theme-toggle" type="button" aria-label="切换到浅色主题" title="切换主题"><span aria-hidden="true">☀</span></button>
@@ -38,24 +39,16 @@
           <h2 id="articles-title">文章</h2>
           <span class="section-count">{{ site.posts | size }} 篇</span>
         </div>
-        <div class="post-list">
-          {% for post in site.posts %}
-          <a class="post-list-item" href="{{ post.url | relative_url }}" aria-label="阅读：{{ post.title | escape }}">
-            <time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%Y.%m.%d" }}</time>
-            <div class="post-list-copy">
-              <h3>{{ post.title | escape }}</h3>
-              <p>{{ post.description | default: post.excerpt | strip_html | truncate: 110 | escape }}</p>
-            </div>
-            <span class="post-list-arrow" aria-hidden="true">↗</span>
-          </a>
-          {% else %}
-          <p class="empty-state">第一篇文章正在路上。</p>
-          {% endfor %}
-        </div>
+        {% include post-list.html posts=site.posts empty_message="第一篇文章正在路上。" %}
       </section>
 
-      <section class="about" id="about" aria-labelledby="about-title">
-        <h2 id="about-title"><a class="about-link" href="{{ '/about/' | relative_url }}">关于 <span aria-hidden="true">→</span></a></h2>
+      <section class="life" id="life" aria-labelledby="life-title">
+        {% assign diaries = site.life | sort: 'date' | reverse %}
+        <div class="section-heading">
+          <h2 id="life-title">生活</h2>
+          <span class="section-count">{{ diaries | size }} 篇</span>
+        </div>
+        {% include post-list.html posts=diaries empty_message="第一篇生活日记正在路上。" %}
       </section>
     </main>
 

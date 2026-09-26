@@ -1,0 +1,14 @@
+<div class="post-list">
+  {% for post in include.posts %}
+  <a class="post-list-item" href="{{ post.url | relative_url }}" aria-label="阅读：{{ post.title | escape }}">
+    <time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+    <div class="post-list-copy">
+      <h3>{{ post.title | escape }}</h3>
+      <p>{{ post.description | default: post.excerpt | strip_html | truncate: 110 | escape }}</p>
+    </div>
+    <span class="post-list-arrow" aria-hidden="true">↗</span>
+  </a>
+  {% else %}
+  <p class="empty-state">{{ include.empty_message | escape }}</p>
+  {% endfor %}
+</div>
