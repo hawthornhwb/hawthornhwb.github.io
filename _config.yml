@@ -3,3 +3,5 @@ title: 黄伟搏的个人博客
 description: 记录技术探索、学习心得与生活思考
 show_downloads: false
 timezone: Asia/Shanghai
+exclude:
+  - tests

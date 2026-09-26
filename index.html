@@ -11,7 +11,7 @@
   <script>
     try { document.documentElement.dataset.theme = localStorage.getItem('blog-theme-v2') || 'dark'; } catch (e) {}
   </script>
-  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v=2">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v=3">
 </head>
 <body id="top">
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -29,6 +29,7 @@
     <main id="main-content">
       <section class="intro" aria-labelledby="intro-title">
         <h1 class="intro-copy" id="intro-title">记录技术探索、学习心得与生活思考。</h1>
+        {% include daily-views.html label="首页今日访问" path="/" %}
       </section>
 
       <section class="articles" id="articles" aria-labelledby="articles-title">
@@ -64,5 +65,6 @@
     </footer>
   </div>
   <script src="{{ '/assets/js/theme.js' | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/daily-views.js' | relative_url }}?v=1" defer></script>
 </body>
 </html>
