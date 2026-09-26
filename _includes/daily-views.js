@@ -15,7 +15,9 @@
     counter.querySelector('[data-view-status]').textContent = status;
     counter.querySelector('[data-view-date]').textContent = dateText;
   }
-  // Start the request in <head>, then render once the counter markup exists.
+  // Render as soon as the counter markup exists. DOMContentLoaded also waits
+  // for unrelated deferred scripts, so it is only a fallback for mounting.
+  document.addEventListener('blog:daily-views-ready', render, { once: true });
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', render, { once: true });
   }
@@ -35,7 +37,8 @@
   // page_pv a daily counter, without depending on the provider's reset timezone.
   // Jekyll supplies the canonical path, so ?v=posts5 and #anchors share a count.
   const url = new URL(path, window.location.origin);
-  const cacheKey = `blog-daily-views-v1:${url.pathname}`;
+  // Keep the new provider's counts separate from the retired busuanzi.cc cache.
+  const cacheKey = `blog-daily-views-v2:bsz-dusays:${url.pathname}`;
   let cachedCount;
   try {
     const cached = JSON.parse(window.localStorage.getItem(cacheKey));
@@ -53,11 +56,12 @@
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 8000);
 
-  // Same POST protocol as https://cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js.
-  // Send no query strings, referrer, credentials, or third-party JavaScript.
-  fetch('https://cdn.busuanzi.cc/api.php', {
+  // BSZ accepts the canonical counter key in x-bsz-referer. A POST both records
+  // this visit and returns page_pv; never prefetch or retry this write request.
+  // Send no query strings, browsing referrer, credentials, or third-party JS.
+  fetch('https://bsz.dusays.com:9001/api', {
     method: 'POST',
-    body: JSON.stringify({ url: url.href, referrer: '' }),
+    headers: { 'x-bsz-referer': url.href },
     credentials: 'omit',
     referrerPolicy: 'no-referrer',
     cache: 'no-store',
@@ -68,8 +72,8 @@
       return response.json();
     })
     .then(data => {
-      const count = data.busuanzi_page_pv;
-      if (!Number.isSafeInteger(count) || count < 0) {
+      const count = data?.data?.page_pv;
+      if (data?.success !== true || !Number.isSafeInteger(count) || count < 0) {
         throw new Error('Invalid counter response');
       }
       text = `${count.toLocaleString('zh-CN')} 次`;
