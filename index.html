@@ -12,7 +12,7 @@
   <script>
     try { document.documentElement.dataset.theme = localStorage.getItem('blog-theme-v2') || 'dark'; } catch (e) {}
   </script>
-  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v=3">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v=4">
 </head>
 <body id="top">
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -21,7 +21,7 @@
       <a class="site-name" href="{{ '/' | relative_url }}">黄伟搏</a>
       <nav class="site-nav" aria-label="主导航">
         <a href="#articles">文章</a>
-        <a href="#about">关于</a>
+        <a href="{{ '/about/' | relative_url }}">关于</a>
         <a href="https://github.com/hawthornhwb" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
         <button class="theme-toggle" type="button" aria-label="切换到浅色主题" title="切换主题"><span aria-hidden="true">☀</span></button>
       </nav>
@@ -55,8 +55,7 @@
       </section>
 
       <section class="about" id="about" aria-labelledby="about-title">
-        <h2 id="about-title">关于</h2>
-        <p>我相信记录能让思考更清楚。这个博客会继续收录工作中的实践、学习笔记，以及偶尔的生活片段。</p>
+        <h2 id="about-title"><a class="about-link" href="{{ '/about/' | relative_url }}">关于 <span aria-hidden="true">→</span></a></h2>
       </section>
     </main>
 

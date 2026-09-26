@@ -72,8 +72,12 @@ button { font: inherit; }
 .post-list-item:hover h3, .post-list-item:hover .post-list-arrow { color: var(--accent); }
 .post-list-item:hover .post-list-arrow { transform: translate(2px, -2px); }
 .empty-state { padding: 2rem 0; color: var(--muted); }
-.about { display: grid; grid-template-columns: 7rem 1fr; gap: 1.25rem; padding: 5rem 0; }
-.about p { max-width: 37rem; margin: 0; color: var(--muted); font-size: .96rem; line-height: 1.85; }
+.about { padding: 3rem 0; }
+.about-link { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; text-decoration: none; }
+.about-link span { color: var(--muted); }
+.about-link:hover, .about-link:hover span { color: var(--accent); }
+.profile-links { display: flex; flex-wrap: wrap; gap: 1rem 2rem; }
+.site-nav a[aria-current="page"] { color: var(--text); }
 .site-footer { display: flex; justify-content: space-between; gap: 1rem; padding: 1.5rem 0 2.5rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
 .site-footer a { text-decoration: none; }
 .footer-links { display: flex; gap: 1.5rem; }
@@ -107,7 +111,7 @@ button { font: inherit; }
   .post-list-item { grid-template-columns: minmax(0, 1fr) 1.25rem; gap: .3rem .75rem; padding: 1.3rem 0; }
   .post-list-item time { grid-column: 1 / -1; padding: 0; }
   .post-list-arrow { grid-column: 2; grid-row: 2; }
-  .about { grid-template-columns: 1fr; gap: 1rem; padding: 4rem 0; }
+  .about { padding: 2rem 0; }
   .post-page { padding-top: 3rem; }
   .post-header { padding-top: 2.5rem; }
 }
