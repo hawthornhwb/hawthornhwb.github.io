@@ -8,6 +8,7 @@
   <meta name="description" content="{{ site.description | escape }}">
   <meta name="theme-color" content="#111113">
   <title>{{ site.title | escape }}</title>
+  {% include daily-views-head.html path="/" %}
   <script>
     try { document.documentElement.dataset.theme = localStorage.getItem('blog-theme-v2') || 'dark'; } catch (e) {}
   </script>
@@ -65,6 +66,5 @@
     </footer>
   </div>
   <script src="{{ '/assets/js/theme.js' | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/daily-views.js' | relative_url }}?v=1" defer></script>
 </body>
 </html>
